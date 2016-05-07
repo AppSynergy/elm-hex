@@ -1,0 +1,17 @@
+{
+  "name": "elm-hex",
+  "version": "0.0.1",
+  "description": "A hexagonal grid library for Elm.",
+  "main": "Gulpfile.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Adam Marshall",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-script": "^1.10.0",
+    "gulp": "^3.9.1",
+    "gulp-watch": "^4.3.5"
+  }
+}
