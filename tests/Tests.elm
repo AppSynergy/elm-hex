@@ -86,7 +86,7 @@ all =
         [(Cube 1 -1 0), (Cube 0 -1 1)])
 
     , test "obstacles - moderate" <|
-      assertEqual 11 <|  -- 12? wrong
+      assertEqual 11 <|
       List.length (limitedFloodFill (Cube 0 0 0) 2
-        [(Cube 1 -1 0), (Cube 0 -1 1), (Cube 0 1 -1)])
+        [(Cube 1 0 -1), (Cube 0 1 -1), (Cube -1 1 0)])
     ]

@@ -35,6 +35,15 @@ hexCorner center radius i =
   )
 
 
+toXY : Coordinate -> Float -> (Float, Float)
+toXY coord radius = case coord of
+  Cube x y z -> let
+    a = (sqrt 3.0) * radius * ( (toFloat z)/2 + (toFloat x))
+    b = 3/2 * radius * (toFloat z)
+  in (a, b)
+  _ -> toXY (toCube coord) radius
+
+
 toAxial : Coordinate -> Coordinate
 toAxial coord = case coord of
   Cube x y z -> Axial x z
@@ -60,10 +69,7 @@ sort : List Coordinate -> List Coordinate
 sort xs =
   let
     comparing a' b' =
-      let
-        a = getCoords a'
-        b = getCoords b'
-      in
+      let (a,b) = (getCoords a', getCoords b') in
       if a.x > b.x then GT
       else if a.x < b.x then LT
       else if a.z > b.z then GT
@@ -75,10 +81,7 @@ sort xs =
 
 add : Coordinate -> Coordinate -> Coordinate
 add a' b' =
-  let
-    a = getCoords a'
-    b = getCoords b'
-  in
+  let (a,b) = (getCoords a', getCoords b') in
   Cube (a.x + b.x) (a.y + b.y) (a.z + b.z)
 
 
@@ -96,41 +99,37 @@ rotateRight a' =
 
 neighbors : Coordinate -> List Coordinate
 neighbors coord =
-  let
-    a = [Cube 1 -1  0, Cube 1  0 -1, Cube 0 1 -1,
-    Cube -1 1  0, Cube -1  0 1, Cube 0 -1 1]
-  in
-  List.map (add coord) a
+  let xs =
+    [ Cube  1 -1  0
+    , Cube  1  0 -1
+    , Cube  0  1 -1
+    , Cube -1  1  0
+    , Cube -1  0  1
+    , Cube  0 -1  1
+    ]
+  in List.map (add coord) xs
 
 
 areNeighbors : Coordinate -> Coordinate -> Bool
-areNeighbors cc1 cc2 =
-  List.member cc1 (neighbors cc2)
+areNeighbors a =
+  List.member a << neighbors
 
 
 distance : Coordinate -> Coordinate -> Int
-distance cc1 cc2 =
-  let
-    c1 = getCoords cc1
-    c2 = getCoords cc2
-  in
-  ((abs (c1.x-c2.x)) + (abs (c1.y-c2.y)) + (abs (c1.z-c2.z))) // 2
+distance a' b' =
+  let (a,b) = (getCoords a', getCoords b') in
+  ((abs (a.x-b.x)) + (abs (a.y-b.y)) + (abs (a.z-b.z))) // 2
 
 
 lineDraw : Coordinate -> Coordinate -> List Coordinate
-lineDraw cc1 cc2 =
-  let
-    d = distance cc1 cc2
-  in
-  List.map (\i -> cubeLerp cc1 cc2 ((toFloat i) / (toFloat d))) [0..d]
+lineDraw a b =
+  let d = distance a b in
+  List.map (\i -> cubeLerp a b ((toFloat i) / (toFloat d))) [0..d]
 
 
 cubeLerp : Coordinate -> Coordinate -> Float -> Coordinate
-cubeLerp cc1 cc2 t =
-  let
-    a = getCoords cc1
-    b = getCoords cc2
-  in
+cubeLerp a' b' t =
+  let (a,b) = (getCoords a', getCoords b') in
   Cube  (a.x + (round <| toFloat (b.x - a.x) * t))
     (a.y + (round <| toFloat (b.y - a.y) * t))
     (a.z + (round <| toFloat (b.z - a.z) * t))

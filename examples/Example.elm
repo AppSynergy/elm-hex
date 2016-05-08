@@ -6,14 +6,21 @@ import Graphics.Collage as Draw
 import Graphics.Element as Ele
 import Hex
 
+radius = 26
+
+hexagon = Draw.ngon 6 radius
+
+
 main : Ele.Element
-main = Draw.collage 600 400 shapes
+main = Draw.collage 600 400 (List.map hexAt shapes)
 
-shapes = List.map (\x -> shapeAt hexagon x 0 0) [0,1,2]
 
-r = 50
+shapes =
+  let a = Hex.Cube 0 0 0 in
+  Hex.neighbors a
+  --Hex.limitedFloodFill (Hex.Cube 0 0 0) 4
+  --  [(Hex.Cube 1 0 -1), (Hex.Cube 0 1 -1), (Hex.Cube -1 1 0)]
 
-hexagon = Draw.ngon 6 r
 
 lines : Draw.LineStyle
 lines =
@@ -21,14 +28,16 @@ lines =
   , width = 2.0
   , cap = Draw.Flat
   , join = Draw.Smooth
-  , dashing = [4,2]
-  , dashOffset = 3
+  , dashing = [3,4]
+  , dashOffset = 0
   }
 
-shapeAt : Draw.Shape -> Float -> Float -> Float -> Draw.Form
-shapeAt shape x y z =
+
+hexAt : Hex.Coordinate -> Draw.Form
+hexAt coords =
+  let c = Hex.getCoords coords in
   Draw.group
-    [ shape |> Draw.outlined lines
-    , toString x ++ " " ++ toString y ++ " " ++ toString z
+    [ hexagon |> Draw.outlined lines |> Draw.rotate (degrees 30)
+    , toString c.x ++ " " ++ toString c.y ++ " " ++ toString c.z
       |> Text.fromString |> Draw.text
-    ] |> Draw.move (x*r*2, y*r*2)
+    ] |> Draw.move (Hex.toXY coords radius)
