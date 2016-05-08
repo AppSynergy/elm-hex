@@ -55,13 +55,42 @@ getCoords coord = case coord of
   _ -> getCoords (toCube coord)
 
 
-add : Coordinate -> Coordinate -> Coordinate
-add cc1 cc2 =
+sort : List Coordinate -> List Coordinate
+sort xs =
   let
-    c1 = getCoords cc1
-    c2 = getCoords cc2
+    comparing a' b' =
+      let
+        a = getCoords a'
+        b = getCoords b'
+      in
+      if a.x > b.x then GT
+      else if a.x < b.x then LT
+      else if a.z > b.z then GT
+      else if a.z < b.z then LT
+      else EQ
   in
-  Cube (c1.x + c2.x) (c1.y + c2.y) (c1.z + c2.z)
+  List.sortWith comparing xs
+
+
+add : Coordinate -> Coordinate -> Coordinate
+add a' b' =
+  let
+    a = getCoords a'
+    b = getCoords b'
+  in
+  Cube (a.x + b.x) (a.y + b.y) (a.z + b.z)
+
+
+rotateLeft : Coordinate -> Coordinate
+rotateLeft a' =
+  let a = getCoords a' in
+  Cube -a.y -a.z -a.x
+
+
+rotateRight : Coordinate -> Coordinate
+rotateRight a' =
+  let a = getCoords a' in
+  Cube -a.z -a.x -a.y
 
 
 neighbors : Coordinate -> List Coordinate
@@ -107,13 +136,25 @@ cubeLerp cc1 cc2 t =
 
 
 movementRange : Coordinate -> Int -> List Coordinate
-movementRange coord range =
+movementRange coord i =
   let
-    w = [(negate range)..range]
-    h dx dy dz = if dx + dy + dz == 0
-      then Just (add coord (Cube dx dy dz)) else Nothing
-    g dx dy = List.map (h dx dy) w
-    f dx = List.map (g dx) w
+    g dx dy =
+      let dz = negate (dx + dy) in
+      if dx + dy + dz == 0
+      then Just (add coord (Cube dx dy dz))
+      else Nothing
+    f dx = List.map (g dx) [(lb dx)..(ub dx)]
+    lb dx = max (negate i) (negate (dx + i))
+    ub dx = min i (i - dx)
   in
   List.filterMap identity <|
-    List.concat <| List.concat <| List.map f w
+    List.concatMap f [(-i)..i]
+
+
+limitedFloodFill : Coordinate -> Int -> List Coordinate -> List Coordinate
+limitedFloodFill start i obstacles =
+  let
+    b = List.filter (\x -> not (List.member x obstacles)) a
+    a = (neighbors start)
+  in
+  [start] ++ b
