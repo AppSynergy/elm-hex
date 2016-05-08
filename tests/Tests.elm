@@ -76,12 +76,17 @@ all =
         assertEqual (Cube 1 -5 4) <|
         rotateRight (Cube 5 -4 -1)
 
-    , test "obstacles" <|
+    , test "obstacles - trivial" <|
       assertEqual 7 <|
-      List.length (limitedFloodFill (Cube 0 0 0) 1 [])
+      List.length (limitedFloodFill (Cube 5 -4 1) 1 [])
 
-    , test "obstacles" <|
+    , test "obstacles - easy" <|
       assertEqual 5 <|
       List.length (limitedFloodFill (Cube 0 0 0) 1
         [(Cube 1 -1 0), (Cube 0 -1 1)])
+
+    , test "obstacles - moderate" <|
+      assertEqual 11 <|  -- 12? wrong
+      List.length (limitedFloodFill (Cube 0 0 0) 2
+        [(Cube 1 -1 0), (Cube 0 -1 1), (Cube 0 1 -1)])
     ]

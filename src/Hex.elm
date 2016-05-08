@@ -2,6 +2,7 @@ module Hex where
 
 import Bitwise exposing (and)
 
+
 type alias Point = (Float,Float)
 
 type Hex
@@ -154,7 +155,12 @@ movementRange coord i =
 limitedFloodFill : Coordinate -> Int -> List Coordinate -> List Coordinate
 limitedFloodFill start i obstacles =
   let
-    b = List.filter (\x -> not (List.member x obstacles)) a
-    a = (neighbors start)
+    notIn xs = not << (flip List.member) xs
+    neighbors' xs = neighbors
+      >> List.filter (notIn obstacles)
+    fill xs j =
+      let bs = List.concatMap (\x -> x :: neighbors' xs x) xs in
+      if j < i then bs ++ (fill bs (j+1)) else bs
+    dedupe xs = List.foldr (\x y -> if List.member x y then y else x :: y ) [] xs
   in
-  [start] ++ b
+  dedupe <| fill [start] 1
